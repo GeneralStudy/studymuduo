@@ -75,7 +75,7 @@ void Poller::updateChannel(Channel* channel)
         channel->set_index(idx);
         m_channels[pfd.fd] = channel;
     } else {
-        assert(m_channels.find(channel->fd()) == m_channels.end());
+        assert(m_channels.find(channel->fd()) != m_channels.end());
         assert(m_channels[channel->fd()] == channel);
 
         int idx = channel->index();
