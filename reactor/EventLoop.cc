@@ -13,6 +13,8 @@ using namespace muduo;
 
 __thread EventLoop* t_loopInThisThread = 0;
 
+const int kPollTimeMs = 10000;
+
 EventLoop::EventLoop():
     m_looping(false),
     m_threadId(CurrentThread::tid())
@@ -37,11 +39,30 @@ void EventLoop::loop()
     assert(!m_looping);
     assertInLoopThread();
     m_looping = true;
+    m_quit = false;
 
-    ::poll(NULL, 0, 5 * 1000);
+    while (!m_quit) 
+    {
+        m_activeChannel.clear();
+        m_poller->poll(kPollTimeMs, &m_activeChannel);
+        for (ChannelList::iterator it = m_activeChannel.begin();
+            it != m_activeChannel.end(); 
+            ++it)
+        {
+            (*it)->handleEvent();
+        }
+    }
 
     LOG_TRACE << "EventLoop " << this << " stop looping";
     m_looping = false;
+}
+
+void EventLoop::updateChannel(Channel* channel)
+{
+    assert(channel->ownerLoop() == this);
+    assertInLoopThread();
+
+    m_poller->updateChannel(channel);
 }
 
 void EventLoop::abortNotInLoopTread() 

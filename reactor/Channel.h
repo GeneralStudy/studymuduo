@@ -12,7 +12,7 @@ class EventLoop;
 class Channel: boost::noncopyable 
 {
 public:
-    typedef boost::function<void()> EventCallback();
+    typedef boost::function<void()> EventCallback;
 
     Channel(EventLoop* loop, int fd);
 
