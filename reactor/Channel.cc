@@ -25,3 +25,25 @@ void Channel::update()
 {
     m_loop->updateChannel(this);
 }
+
+void Channel::handleEvent()
+{
+    if (m_revents & POLLNVAL) {
+        LOG_WARN << "Channel::handle_event() POLLNVAL";
+    }
+
+    if (m_revents & (POLLERR | POLLNVAL)) {
+        if (m_errorCallBack) 
+            m_errorCallBack();
+    }
+
+    if (m_revents & (POLLIN | POLLPRI | POLLRDHUP)) {
+        if (m_readCallBack) 
+            m_readCallBack();
+    }
+
+    if (m_revents & POLLOUT) {
+        if (m_writeCallBack) 
+            m_writeCallBack();
+    }
+}

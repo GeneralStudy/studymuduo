@@ -17,7 +17,9 @@ const int kPollTimeMs = 10000;
 
 EventLoop::EventLoop():
     m_looping(false),
-    m_threadId(CurrentThread::tid())
+    m_quit(false),
+    m_threadId(CurrentThread::tid()),
+    m_poller(new Poller(this))
 {
     LOG_TRACE << "EventLoop created" << this << " in thread " << m_threadId;
     if (t_loopInThisThread) {
@@ -55,6 +57,11 @@ void EventLoop::loop()
 
     LOG_TRACE << "EventLoop " << this << " stop looping";
     m_looping = false;
+}
+
+void EventLoop::quit()
+{
+    m_quit = true;
 }
 
 void EventLoop::updateChannel(Channel* channel)
