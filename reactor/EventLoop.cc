@@ -20,7 +20,8 @@ EventLoop::EventLoop():
     m_looping(false),
     m_quit(false),
     m_threadId(CurrentThread::tid()),
-    m_poller(new Poller(this))
+    m_poller(new Poller(this)),
+    m_timerQueue(new TimerQueue(this))
 {
     LOG_TRACE << "EventLoop created" << this << " in thread " << m_threadId;
     if (t_loopInThisThread) {
@@ -47,7 +48,7 @@ void EventLoop::loop()
     while (!m_quit) 
     {
         m_activeChannel.clear();
-        m_poller->poll(kPollTimeMs, &m_activeChannel);
+        m_pollReturnTime = m_poller->poll(kPollTimeMs, &m_activeChannel);
         for (ChannelList::iterator it = m_activeChannel.begin();
             it != m_activeChannel.end(); 
             ++it)
