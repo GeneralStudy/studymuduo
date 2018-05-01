@@ -2,12 +2,13 @@
 
 #include "Channel.h"
 #include "Poller.h"
+#include "TimerQueue.h"
 
 
 #include "../logging/Logging.h"
 
 #include <assert.h>
-#include <poll.h>
+//#include <poll.h>
 
 using namespace muduo;
 
@@ -77,6 +78,23 @@ void EventLoop::abortNotInLoopTread()
     LOG_FATAL << "EventLoop::abortNotInLoopThread - EventLoop " << this
               << " was created in threadId = " << m_threadId
               << ", current thread id = " << CurrentThread::tid();
+}
+
+TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb) 
+{
+    return m_timerQueue->addTimer(cb, time, 0.0);
+}
+
+TimerId EventLoop::runAfter(double delay, const TimerCallback& cb)
+{
+    Timestamp time(addTime(Timestamp::now(), delay));
+    return runAt(time, cb);
+}
+
+TimerId EventLoop::runEvery(double interval, const TimerCallback& cb) 
+{
+    Timestamp time(addTime(Timestamp::now(), interval));
+    return m_timerQueue->addTimer(cb, time, interval);
 }
 
 

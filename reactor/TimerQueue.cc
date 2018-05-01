@@ -22,7 +22,7 @@ int createTimerfd()
         LOG_SYSFATAL << "Failed in timerfd_create";
     }
 
-    return timerfd
+    return timerfd;
 }   
 
 struct timespec howMuchTimeFromNow(Timestamp when) 
@@ -117,6 +117,21 @@ void TimerQueue::handleRead()
     reset(expired, now);
 }
 
+std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
+{
+    std::vector<Entry> expired;
+    Entry sentry = std::make_pair(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
+    TimerList::iterator it = m_timers.lower_bound(sentry);
+
+    assert(it == m_timers.end() || now < it->first);
+
+    std::copy(m_timers.begin(), it, back_inserter(expired));
+    
+    m_timers.erase(m_timers.begin(), it);
+
+    return expired;
+}
+
 void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now) 
 {
     Timestamp nextExpire;
@@ -148,7 +163,7 @@ bool TimerQueue::insert(Timer* timer)
         earliestChanged = true;
     }
 
-    std::pair<TimerList::iterator, bool> result = m_timers.insert(std::make_pair<when, timer));
+    std::pair<TimerList::iterator, bool> result = m_timers.insert(std::make_pair(when, timer));
 
     assert(result.second);
 
