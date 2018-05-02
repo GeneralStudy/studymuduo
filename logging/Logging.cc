@@ -88,6 +88,9 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const char* file, int line)
   const char* path_sep_pos = strrchr(fullname_, '/');
   basename_ = (path_sep_pos != NULL) ? path_sep_pos + 1 : fullname_;
 
+  //"\033[1;31mbold red text\033[0m\n";
+  stream_ << T("\033[0;35m", 7);
+
   formatTime();
   Fmt tid("%5d ", CurrentThread::tid());
   assert(tid.length() == 6);
@@ -122,7 +125,8 @@ void Logger::Impl::formatTime()
 
 void Logger::Impl::finish()
 {
-  stream_ << " - " << basename_ << ':' << line_ << '\n';
+  //"\033[1;31mbold red text\033[0m\n";
+  stream_ << " - " << basename_ << ':' << line_ << "\033[0m\n";
 }
 
 Logger::Logger(const char* file, int line)
