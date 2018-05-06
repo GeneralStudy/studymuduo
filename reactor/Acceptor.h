@@ -30,7 +30,7 @@ private:
 
     EventLoop* m_loop;
     Socket m_acceptSocket;
-    Channel* m_acceptChannel;
+    Channel m_acceptChannel;
     NewConnectionCallback m_newConnectionCallback;
     bool m_listening;
 };
